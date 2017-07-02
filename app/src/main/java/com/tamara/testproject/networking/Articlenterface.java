@@ -5,6 +5,7 @@ import com.tamara.testproject.data.ArticleResponse;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
+import rx.Observable;
 
 /**
  * Created by tamara on 5/1/17.
@@ -12,7 +13,7 @@ import retrofit2.http.Query;
 
 public interface Articlenterface {
     @GET("articles")
-    Call<ArticleResponse> getNewsItems (@Query("source") String source,
-                                        @Query("apiKey") String apiKey);
+    Observable<ArticleResponse> getNewsItems (@Query("source") String source,
+                                              @Query("apiKey") String apiKey);
 
 }

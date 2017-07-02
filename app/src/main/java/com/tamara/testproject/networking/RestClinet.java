@@ -3,6 +3,7 @@ package com.tamara.testproject.networking;
 import com.tamara.testproject.data.Constant;
 
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
@@ -17,6 +18,7 @@ public class RestClinet {
     public static Retrofit getClient() {
         if (retrofit == null) {
             retrofit = new Retrofit.Builder()
+                    .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                     .baseUrl(Constant.URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();

@@ -3,14 +3,11 @@ package com.tamara.testproject.activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import com.tamara.testproject.R;
 import com.tamara.testproject.adapter.NewsAdapter;
 import com.tamara.testproject.data.Constant;
@@ -22,20 +19,15 @@ import com.tamara.testproject.networking.RestClinet;
 import com.tamara.testproject.networking.Articlenterface;
 
 import java.util.ArrayList;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements NewsAdapter.OnItemClick {
-
-    public static final String REQUEST = "request";
 
     private ArticleListFragment articleListFragment;
     private ArticleDetailsFragment articleDetailsFragment;
     private ArrayList<ArticleItem> mNewsItem;
-    private ArticleResponse articleResponse;
-    private SharedPreferences mSharedPrefs;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
@@ -45,17 +37,9 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.OnIte
         } else {
             setContentView(R.layout.activity_main);
         }
-
-        mSharedPrefs = getSharedPreferences(Constant.SHARED_PREFS_KEY, MODE_PRIVATE);
-
-        if (savedInstanceState != null) {
-            articleResponse = savedInstanceState.getParcelable(REQUEST);
-            mNewsItem = articleResponse.getArticles();
-        } else {
             articleListFragment = new ArticleListFragment();
             getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, articleListFragment).commit();
             requestArticles();
-        }
 
     }
 
@@ -64,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.OnIte
         articleDetailsFragment = new ArticleDetailsFragment();
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (isXLargeDevice(this)) {
-            fragmentTransaction.add(R.id.fragment_container2,articleDetailsFragment).commit();
+            fragmentTransaction.add(R.id.fragment_container2, articleDetailsFragment).commit();
         } else {
             fragmentTransaction.replace(R.id.fragment_container, articleDetailsFragment);
             fragmentTransaction.addToBackStack(null);
@@ -75,36 +59,23 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.OnIte
 
     private void requestArticles() {
         Articlenterface mApiService = RestClinet.getClient().create(Articlenterface.class);
-        Call<ArticleResponse> mCall = mApiService.getNewsItems(Constant.NEWS_TYPE, Constant.NEWS_KEY);
+        Observable<ArticleResponse> articleResponse = mApiService.getNewsItems(Constant.NEWS_TYPE, Constant.NEWS_KEY);
 
-        mCall.enqueue(new Callback<ArticleResponse>() {
-            @Override
-            public void onResponse(Call<ArticleResponse> call, Response<ArticleResponse> response) {
-                SharedPreferences.Editor editor = mSharedPrefs.edit();
-                JsonObject post = (JsonObject) new Gson().toJsonTree(response.body());
-                editor.putString(Constant.RESPONSE, post.toString());
-                editor.apply();
-
-                articleResponse = response.body();
-                mNewsItem = articleResponse.getArticles();
-                articleListFragment.setmAtricleList(mNewsItem);
-            }
-
-            @Override
-            public void onFailure(Call<ArticleResponse> call, Throwable t) {
-                String response = mSharedPrefs.getString(Constant.RESPONSE, "");
-                Gson gson = new Gson();
-                articleResponse = gson.fromJson(response, ArticleResponse.class);
-                mNewsItem = articleResponse.getArticles();
-                articleListFragment.setmAtricleList(mNewsItem);
-            }
-        });
+        articleResponse.subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(this::handleResponse, this::handleError);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable(REQUEST, articleResponse);
+    private void handleError(Throwable throwable) {
+        Snackbar.make(findViewById(android.R.id.content), "An error happened", Snackbar.LENGTH_SHORT)
+                .setAction("close", view -> finish())
+                .setActionTextColor(Color.RED)
+                .show();
+    }
+
+    private void handleResponse(ArticleResponse articleResponse) {
+        mNewsItem = articleResponse.getArticles();
+        articleListFragment.setmAtricleList(mNewsItem);
     }
 
     @Override
