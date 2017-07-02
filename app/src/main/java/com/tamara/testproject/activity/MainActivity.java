@@ -8,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+
 import com.tamara.testproject.R;
 import com.tamara.testproject.adapter.NewsAdapter;
 import com.tamara.testproject.data.Constant;
@@ -19,11 +20,18 @@ import com.tamara.testproject.networking.RestClinet;
 import com.tamara.testproject.networking.Articlenterface;
 
 import java.util.ArrayList;
+
+import butterknife.BindString;
+import butterknife.ButterKnife;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements NewsAdapter.OnItemClick {
+    @BindString(R.string.error)
+    String error;
+    @BindString(R.string.close)
+    String close;
 
     private ArticleListFragment articleListFragment;
     private ArticleDetailsFragment articleDetailsFragment;
@@ -32,15 +40,18 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.OnIte
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (isXLargeDevice(this)) {
             setContentView(R.layout.activity_main_large);
         } else {
             setContentView(R.layout.activity_main);
         }
-            articleListFragment = new ArticleListFragment();
-            getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, articleListFragment).commit();
-            requestArticles();
 
+        ButterKnife.bind(this);
+
+        articleListFragment = new ArticleListFragment();
+        getSupportFragmentManager().beginTransaction().add(R.id.fragment_container, articleListFragment).commit();
+        requestArticles();
     }
 
     @Override
@@ -67,8 +78,8 @@ public class MainActivity extends AppCompatActivity implements NewsAdapter.OnIte
     }
 
     private void handleError(Throwable throwable) {
-        Snackbar.make(findViewById(android.R.id.content), "An error happened", Snackbar.LENGTH_SHORT)
-                .setAction("close", view -> finish())
+        Snackbar.make(findViewById(android.R.id.content), error, Snackbar.LENGTH_SHORT)
+                .setAction(close, view -> finish())
                 .setActionTextColor(Color.RED)
                 .show();
     }

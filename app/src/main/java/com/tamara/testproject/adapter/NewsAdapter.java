@@ -16,6 +16,10 @@ import com.tamara.testproject.data.ArticleItem;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+
 /**
  * Created by tamara on 5/1/17.
  */
@@ -56,24 +60,27 @@ public class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.Holder> {
     }
 
     public class Holder extends RecyclerView.ViewHolder {
+        @BindView(R.id.root)
         RelativeLayout mRoot;
+        @BindView(R.id.title)
         TextView mTitle;
+        @BindView(R.id.publiched_at)
         TextView mPublishedAt;
+        @BindView(R.id.image)
         ImageView mImage;
+
+        @OnClick(R.id.root)
+        public void onDetailScreen() {
+            onItemClickCallback.onItemClick(getAdapterPosition());
+        }
 
         public Holder(View itemView) {
             super(itemView);
-            mRoot = (RelativeLayout) itemView.findViewById(R.id.root);
-            mTitle = (TextView) itemView.findViewById(R.id.title);
-            mPublishedAt = (TextView) itemView.findViewById(R.id.publiched_at);
-            mImage = (ImageView) itemView.findViewById(R.id.image);
-
-            mRoot.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    onItemClickCallback.onItemClick(getAdapterPosition());
-                }
-            });
+            try {
+                ButterKnife.bind(this, itemView);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">testProject</string>
     <string name="news">News</string>
+    <string name="close">Close</string>
+    <string name="error">An error happened</string>
 </resources>

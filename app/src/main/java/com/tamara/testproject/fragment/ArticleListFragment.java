@@ -11,12 +11,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import com.tamara.testproject.R;
 import com.tamara.testproject.adapter.NewsAdapter;
 import com.tamara.testproject.data.ArticleItem;
+import com.tamara.testproject.data.ArticleResponse;
 
 import java.util.ArrayList;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import rx.Observable;
+import rx.Observer;
+import rx.Subscription;
 
 /**
  * Created by tamara on 5/1/17.
@@ -25,7 +33,9 @@ import java.util.ArrayList;
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 
 public class ArticleListFragment extends Fragment {
-    private RecyclerView mRecyclerView;
+    @BindView(R.id.recyclerVIew)
+    RecyclerView mRecyclerView;
+
     private ArrayList<ArticleItem> mAtricleList = new ArrayList<>();
     private NewsAdapter mAdapter;
     private String TAG_ARTICLE_LIST = ArticleListFragment.class.getName();
@@ -35,15 +45,15 @@ public class ArticleListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_list_layout, container, false);
-
-        if (savedInstanceState != null) {
-            mAtricleList = savedInstanceState.getParcelableArrayList(TAG_ARTICLE_LIST);
+        try {
+            ButterKnife.bind(this, view);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.recyclerVIew);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity().getApplicationContext()));
         mAdapter = new NewsAdapter(mAtricleList, getActivity());
         mRecyclerView.setAdapter(mAdapter);
+
         return view;
     }
 
@@ -61,4 +71,5 @@ public class ArticleListFragment extends Fragment {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(TAG_ARTICLE_LIST, mAtricleList);
     }
+
 }

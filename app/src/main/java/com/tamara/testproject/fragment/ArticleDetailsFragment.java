@@ -14,39 +14,48 @@ import com.bumptech.glide.Glide;
 import com.tamara.testproject.R;
 import com.tamara.testproject.data.ArticleItem;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Created by tamara on 5/2/17.
  */
 
 public class ArticleDetailsFragment extends Fragment {
-    private TextView mTitle;
-    private TextView mDescription;
-    private TextView mAuthor;
-    private TextView mUrl;
-    private TextView mDate;
-    private ImageView mImage;
-    private ArticleItem mAtricleItem;
     private String TAG_FOR_PARCEL = ArticleDetailsFragment.class.getName();
+
+    @BindView(R.id.article_title)
+    TextView mTitle;
+    @BindView(R.id.article_description)
+    TextView mDescription;
+    @BindView(R.id.article_author)
+    TextView mAuthor;
+    @BindView(R.id.article_url)
+    TextView mUrl;
+    @BindView(R.id.article_date)
+    TextView mDate;
+    @BindView(R.id.article_image)
+    ImageView mImage;
+
+    private ArticleItem mAtricleItem;
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_details_layout, container, false);
-        if (savedInstanceState != null) {
-            mAtricleItem = savedInstanceState.getParcelable(TAG_FOR_PARCEL);
+        try {
+            ButterKnife.bind(this, view);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        initComponents(view);
+
+        initComponents();
+
         return view;
     }
 
-    private void initComponents(View view) {
-        mTitle = (TextView) view.findViewById(R.id.article_title);
-        mDescription = (TextView) view.findViewById(R.id.article_description);
-        mAuthor = (TextView) view.findViewById(R.id.article_author);
-        mUrl = (TextView) view.findViewById(R.id.article_url);
-        mDate = (TextView) view.findViewById(R.id.article_date);
-        mImage = (ImageView) view.findViewById(R.id.article_image);
-
+    private void initComponents() {
         mTitle.setText(mAtricleItem.getTitle());
         mDescription.setText(mAtricleItem.getDescription());
         mAuthor.setText(mAtricleItem.getAuthor());
